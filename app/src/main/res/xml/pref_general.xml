@@ -1,0 +1,27 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Fixes SwitchPreference not animating bug -->
+    <space.hamsters.fspammer.DummyPreference />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="blocker_enabled"
+        android:summary="@string/pref_description_block_enabled"
+        android:title="@string/pref_title_block_enabled" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="debug_enabled"
+        android:summary="@string/pref_description_debug_enabled"
+        android:title="@string/pref_title_debug_enabled" />
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_block_regex"
+        android:key="block_regex"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:title="@string/pref_title_block_regex" />
+
+</PreferenceScreen>

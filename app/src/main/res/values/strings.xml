@@ -12,4 +12,8 @@
     <string name="xposeddescription">Filter messages matching RegEx in QQ groups. Set it up before usage!</string>
     <string name="about_me_format" translatable="false">FSpammer <xliff:g id="VER">%1$s</xliff:g></string>
     <string name="about_me_detail">FSpammer, stop spammers in your group!\n\nHamster Tian, 2016.\nSources available at https://github.com/HamsterReserved/FSpammer\n\nInspired by fkzhang\'s QQUnrecalled plugin.</string>
+    <string name="pref_title_restart_qq">Restart QQ</string>
+    <string name="pref_description_restart_qq">Force-stop QQ and restart it to apply the settings</string>
+    <string name="progress_restart_qq">Restarting QQ\u2026</string>
+    <string name="progress_restart_qq_failed">Failed restarting QQ. Please check if you have root access.</string>
 </resources>

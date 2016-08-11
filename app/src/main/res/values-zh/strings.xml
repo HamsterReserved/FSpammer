@@ -11,4 +11,8 @@
     <string name="pref_title_about_me">关于</string>
     <string name="xposeddescription">使用正则表达式过滤QQ群消息。使用前必须先设置！</string>
     <string name="about_me_detail">Hamster Tian, 2016.\n源码可在 https://github.com/HamsterReserved/FSpammer 找到。\n\n受到 fkzhang 的 QQUnrecalled 插件启发，在此表示感谢。</string>
+    <string name="pref_title_restart_qq">重新启动 QQ</string>
+    <string name="pref_description_restart_qq">将 QQ 强行停止并重新启动以应用设置</string>
+    <string name="progress_restart_qq">正在重新启动 QQ\u2026\u2026</string>
+    <string name="progress_restart_qq_failed">QQ 重新启动失败。请检查 root 权限是否正常。</string>
 </resources>

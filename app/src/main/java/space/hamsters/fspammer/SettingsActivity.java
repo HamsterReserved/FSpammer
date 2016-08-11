@@ -3,6 +3,7 @@ package space.hamsters.fspammer;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +14,8 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -97,13 +100,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Preference versionDisplay = findPreference("version");
-
-    }
-
     /**
      * Make the preferences world-readable, since our hook is running
      * in another process.
@@ -144,14 +140,61 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             aboutMePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(GeneralPreferenceFragment.this.getActivity());
-                    builder.setTitle("FSpammer");
-                    builder.setView(R.layout.about_me_dialog);
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.show();
+                    showAboutDialog();
+                    return true;
+                }
+            });
+
+            Preference restartQQPref = findPreference("restart_qq");
+            restartQQPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    restartQQ();
                     return true;
                 }
             });
         }
+
+        private void showAboutDialog() {
+            Context context = getActivity();
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("FSpammer");
+            builder.setView(LayoutInflater.from(context).inflate(R.layout.about_me_dialog, null));
+            builder.setPositiveButton(android.R.string.ok, null);
+            builder.show();
+        }
+
+        private void restartQQ() {
+            final Context context = getActivity();
+            final ProgressDialog dialog = new ProgressDialog(context);
+            dialog.setIndeterminate(true);
+            dialog.setMessage(context.getResources().getString(R.string.progress_restart_qq));
+            dialog.setCancelable(false);
+
+            CommandAsyncTask.OnFinishCallback callback = new CommandAsyncTask.OnFinishCallback() {
+                @Override
+                public void onSuccess() {
+                    dialog.dismiss();
+                    launchQQ();
+                }
+
+                @Override
+                public void onFailure() {
+                    dialog.dismiss();
+                    Toast.makeText(context, R.string.progress_restart_qq_failed, Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            CommandAsyncTask task = new CommandAsyncTask(callback);
+            task.execute("am force-stop com.tencent.mobileqq");
+            dialog.show();
+        }
+
+        private void launchQQ() {
+            Intent intent = getActivity().getPackageManager().getLaunchIntentForPackage("com.tencent.mobileqq");
+            startActivity(intent);
+        }
     }
+
+
 }

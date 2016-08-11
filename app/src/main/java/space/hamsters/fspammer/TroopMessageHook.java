@@ -59,16 +59,16 @@ public class TroopMessageHook {
                     protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
                         if (!mEnabled)
                             return;
-
                         findClasses(loader);
                         ArrayList list = (ArrayList) param.args[1];
                         if (list.size() > 0) {
                             Object msgRecord = list.get(0);
-                            if (mDebug) XposedBridge.log(msgRecord.toString());
+                            logd(msgRecord.toString());
                             String msg = MessageRecordReader.getMessageRecordContent(msgRecord);
-                            if (msg.length() > 0) {
+                            if (msg != null && msg.length() > 0) {
+                                logd("Complete message: " + msg);
                                 if (msg.matches(getPreferences().getString("block_regex", ""))) {
-                                    if (mDebug) XposedBridge.log("Message above is filtered");
+                                    logd("Message above is filtered");
                                     list.clear();
                                 }
                             }
@@ -76,6 +76,10 @@ public class TroopMessageHook {
                     }
                 });
         XposedBridge.log("FSpammer hooked on QQ");
+    }
+
+    private static void logd(String log) {
+        if (mDebug) XposedBridge.log(log);
     }
 
     private static class MessageRecordReader {

@@ -3,8 +3,12 @@
     <string name="app_name">FSpammer</string>
     <string name="pref_title_block_enabled">允许拦截消息</string>
     <string name="pref_title_block_regex">拦截正则表达式</string>
-    <string name="pref_header_general">一般设置</string>
-    <string name="pref_description_block_enabled">此设置重启生效</string>
+    <string name="pref_header_general">功能</string>
+    <string name="pref_description_block_enabled">此设置重启 QQ 生效</string>
     <string name="pref_title_debug_enabled">打印调试日志</string>
-    <string name="pref_description_debug_enabled">在 logcat 中打印调试信息。重启生效。注意：这将会输出你收到的每一条消息！</string>
+    <string name="pref_description_debug_enabled">在 logcat 中打印调试信息。重启 QQ 生效。\n注意：这将会打印你收到的每一条消息！</string>
+    <string name="pref_category_misc">其他</string>
+    <string name="pref_title_about_me">关于</string>
+    <string name="xposeddescription">使用正则表达式过滤QQ群消息。使用前必须先设置！</string>
+    <string name="about_me_detail">Hamster Tian, 2016.\n源码可在 https://github.com/HamsterReserved/FSpammer 找到。\n\n受到 fkzhang 的 QQUnrecalled 插件启发，在此表示感谢。</string>
 </resources>

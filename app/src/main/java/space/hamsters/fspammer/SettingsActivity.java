@@ -2,6 +2,7 @@ package space.hamsters.fspammer;
 
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +13,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
 
 import java.util.List;
 
@@ -95,24 +95,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             intent.putExtra(EXTRA_SHOW_FRAGMENT, GeneralPreferenceFragment.class.getName());
         }
         super.onCreate(savedInstanceState);
-        setupActionBar();
-        //getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
     }
 
     @Override
-    public SharedPreferences getSharedPreferences(String name, int mode) {
-        return super.getSharedPreferences(name, MODE_WORLD_READABLE);
+    protected void onResume() {
+        super.onResume();
+        Preference versionDisplay = findPreference("version");
+
     }
 
     /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
+     * Make the preferences world-readable, since our hook is running
+     * in another process.
      */
-    private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Show the Up button in the action bar.
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+    @Override
+    public SharedPreferences getSharedPreferences(String name, int mode) {
+        return super.getSharedPreferences(name, MODE_WORLD_READABLE);
     }
 
     /**
@@ -140,8 +138,20 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("block_regex"));
+
+            Preference aboutMePref = findPreference("about_me");
+            aboutMePref.setSummary(getString(R.string.about_me_format, BuildConfig.VERSION_NAME));
+            aboutMePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(GeneralPreferenceFragment.this.getActivity());
+                    builder.setTitle("FSpammer");
+                    builder.setView(R.layout.about_me_dialog);
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.show();
+                    return true;
+                }
+            });
         }
     }
-
-
 }

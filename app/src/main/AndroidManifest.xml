@@ -23,7 +23,7 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Filter messages matching RegEx in QQ groups" />
+            android:value="Filter messages matching RegEx in QQ groups. Set it up before usage!" />
         <meta-data
             android:name="xposedminversion"
             android:value="54" />

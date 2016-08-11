@@ -1,5 +1,21 @@
 apply plugin: 'com.android.application'
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.ajoberstar:grgit:1.4.1'
+    }
+}
+
+ext {
+    git = org.ajoberstar.grgit.Grgit.open()
+    gitVersionCode = Integer.parseInt("${git.log().size()}")
+    gitVersionName = "${git.log(maxCommits: 1).get(0).id.substring(0, 8)}"
+    gitDirtyString = git.status().clean ? "" : "-dirty"
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -8,8 +24,8 @@ android {
         applicationId "space.hamsters.fspammer"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode gitVersionCode
+        versionName "1.0" + "-" + gitVersionName + gitDirtyString
     }
     buildTypes {
         release {
@@ -21,8 +37,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:support-v4:23.4.0'
     provided 'de.robv.android.xposed:api:82'
 }

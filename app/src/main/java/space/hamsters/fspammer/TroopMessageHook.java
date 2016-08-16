@@ -2,6 +2,7 @@ package space.hamsters.fspammer;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -21,6 +22,39 @@ public class TroopMessageHook {
     private static Class<?> MessageRecordClass;
     private static boolean mEnabled;
     private static boolean mDebug;
+    private static String mBlockRegex;
+
+    private static XC_MethodHook sMessageFilterHook = new XC_MethodHook() {
+        @Override
+        @SuppressWarnings("unchecked")
+        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+            if (!mEnabled)
+                return;
+
+            /*
+             * I've only seen cases where the ArrayList has only 1 item.
+             * But who knows if it wants to add more...
+             */
+            ArrayList list = (ArrayList) param.args[1];
+            logd(String.format(Locale.getDefault(), "Got a list of %d messages", list.size()));
+            if (list.size() > 0) {
+                ArrayList itemsToFilter = new ArrayList(2);
+                for (Object msgRecord : list) {
+                    logd(msgRecord.toString());
+                    String msg = MessageRecordReader.getMessageRecordContent(msgRecord);
+                    if (msg != null && msg.length() > 0) {
+                        logd("Complete message: " + msg);
+                        if (msg.matches(mBlockRegex)) {
+                            logd("Message above is filtered");
+                            itemsToFilter.add(msgRecord);
+                        }
+                    }
+                }
+                if (itemsToFilter.size() > 0)
+                    list.removeAll(itemsToFilter);
+            }
+        }
+    };
 
     private static XSharedPreferences getPreferences() {
         if (mPreferences == null) {
@@ -51,30 +85,11 @@ public class TroopMessageHook {
         findClasses(loader);
         mEnabled = getPreferences().getBoolean("blocker_enabled", false);
         mDebug = getPreferences().getBoolean("debug_enabled", false);
+        mBlockRegex = getPreferences().getString("block_regex", "");
 
         XposedHelpers.findAndHookMethod("com.tencent.mobileqq.app.message.BaseMessageProcessorForTroopAndDisc", loader,
                 "a", MsgClass, ArrayList.class, PBDecodeContextClass, boolean.class, MessageInfoClass,
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
-                        if (!mEnabled)
-                            return;
-                        findClasses(loader);
-                        ArrayList list = (ArrayList) param.args[1];
-                        if (list.size() > 0) {
-                            Object msgRecord = list.get(0);
-                            logd(msgRecord.toString());
-                            String msg = MessageRecordReader.getMessageRecordContent(msgRecord);
-                            if (msg != null && msg.length() > 0) {
-                                logd("Complete message: " + msg);
-                                if (msg.matches(getPreferences().getString("block_regex", ""))) {
-                                    logd("Message above is filtered");
-                                    list.clear();
-                                }
-                            }
-                        }
-                    }
-                });
+                sMessageFilterHook);
         XposedBridge.log("FSpammer hooked on QQ");
     }
 

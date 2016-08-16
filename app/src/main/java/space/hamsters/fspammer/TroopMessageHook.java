@@ -21,6 +21,30 @@ public class TroopMessageHook {
     private static Class<?> MessageRecordClass;
     private static boolean mEnabled;
     private static boolean mDebug;
+    private static String mBlockRegex;
+
+    private static XC_MethodHook sMessageFilterHook = new XC_MethodHook() {
+        @Override
+        @SuppressWarnings("unchecked")
+        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+            if (!mEnabled)
+                return;
+
+            ArrayList list = (ArrayList) param.args[1];
+            if (list.size() > 0) {
+                Object msgRecord = list.get(0);
+                logd(msgRecord.toString());
+                String msg = MessageRecordReader.getMessageRecordContent(msgRecord);
+                if (msg != null && msg.length() > 0) {
+                    logd("Complete message: " + msg);
+                    if (msg.matches(mBlockRegex)) {
+                        logd("Message above is filtered");
+                        list.clear();
+                    }
+                }
+            }
+        }
+    };
 
     private static XSharedPreferences getPreferences() {
         if (mPreferences == null) {
@@ -51,30 +75,11 @@ public class TroopMessageHook {
         findClasses(loader);
         mEnabled = getPreferences().getBoolean("blocker_enabled", false);
         mDebug = getPreferences().getBoolean("debug_enabled", false);
+        mBlockRegex = getPreferences().getString("block_regex", "");
 
         XposedHelpers.findAndHookMethod("com.tencent.mobileqq.app.message.BaseMessageProcessorForTroopAndDisc", loader,
                 "a", MsgClass, ArrayList.class, PBDecodeContextClass, boolean.class, MessageInfoClass,
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
-                        if (!mEnabled)
-                            return;
-                        findClasses(loader);
-                        ArrayList list = (ArrayList) param.args[1];
-                        if (list.size() > 0) {
-                            Object msgRecord = list.get(0);
-                            logd(msgRecord.toString());
-                            String msg = MessageRecordReader.getMessageRecordContent(msgRecord);
-                            if (msg != null && msg.length() > 0) {
-                                logd("Complete message: " + msg);
-                                if (msg.matches(getPreferences().getString("block_regex", ""))) {
-                                    logd("Message above is filtered");
-                                    list.clear();
-                                }
-                            }
-                        }
-                    }
-                });
+                sMessageFilterHook);
         XposedBridge.log("FSpammer hooked on QQ");
     }
 
